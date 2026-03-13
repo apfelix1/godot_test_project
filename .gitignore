@@ -1,0 +1,16 @@
+﻿# Godot 4+
+.godot/
+.import/
+export.cfg
+export_presets.cfg
+
+# Mono / C#
+.mono/
+*.csproj
+*.sln
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
