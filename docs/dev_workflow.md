@@ -27,14 +27,23 @@
 要声音 → Suno / Udio
 ```
 
-### 四条工作线
+### 开发阶段
 
 ```
+Phase 0: 项目初始化  ──  生成 gdd.md / tdd.md 全部基础 context（一次性）
+                         详见 docs/manuals/phase0_project_init.md
+
+Phase 0 完成后，进入四条并行工作线：
+
 Track A: 系统/代码  ──  ChatGPT → Claude Code → Kimi
 Track B: UI/UX      ──  ChatGPT/Claude → Claude Code → 你在 Godot 搭
 Track C: 视觉美术   ──  ChatGPT → ComfyUI/SD/MJ → Kimi 批量
 Track D: 音频       ──  ChatGPT → Suno/Udio
 ```
+
+> **重要**：所有 Track 的 prompt 都引用 gdd.md / tdd.md 的上下文。
+> 如果这些文件还有"待定"，prompt 的效果会大打折扣。
+> 务必先完成 Phase 0。
 
 ---
 

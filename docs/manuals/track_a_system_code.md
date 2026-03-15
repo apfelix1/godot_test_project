@@ -38,9 +38,12 @@ gdd.md           tdd.md             tasks.md           source/          git comm
 | Kimi | 批量生成配置/数据 | A4 阶段（需要时） |
 | Godot 编辑器 | 运行测试、摆节点 | A4-A5 阶段 |
 
-### 必读文件
+### 前置条件
 
-开始前确保这些文件已有内容（不能全是"待定"）：
+**Track A 要求 Phase 0 已完成。** gdd.md 和 tdd.md 不能有"待定"字样。
+如果还没完成 Phase 0，请先执行 → [Phase 0 用户手册](phase0_project_init.md)
+
+必读文件：
 
 | 文件 | 最低要求 |
 |------|----------|

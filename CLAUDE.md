@@ -39,4 +39,5 @@ Godot 4.3 独立游戏项目，使用 GDScript。
 - docs/dev_workflow.md             -- 开发工作流（4 工作线 + 16 个标准 prompt）
 - ai/context/architecture.md       -- 架构详情（场景树、通信规则）
 - ai/context/coding_conventions.md -- 编码规范详情
-- docs/manuals/track_a_system_code.md -- Track A 用户手册：系统/代码
+- docs/manuals/phase0_project_init.md  -- Phase 0 用户手册：项目初始化
+- docs/manuals/track_a_system_code.md  -- Track A 用户手册：系统/代码
