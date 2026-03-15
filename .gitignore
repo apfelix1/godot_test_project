@@ -14,3 +14,9 @@ export_presets.cfg
 Thumbs.db
 .vscode/
 .idea/
+
+# Claude Code local settings
+.claude/
+
+# Raw art source files
+assets/raw/
