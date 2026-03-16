@@ -41,3 +41,4 @@ Godot 4.3 独立游戏项目，使用 GDScript。
 - ai/context/coding_conventions.md -- 编码规范详情
 - docs/manuals/phase0_project_init.md  -- Phase 0 用户手册：项目初始化
 - docs/manuals/track_a_system_code.md  -- Track A 用户手册：系统/代码
+- docs/manuals/iteration_add_feature.md -- 迭代手册：新增功能/素材/并入

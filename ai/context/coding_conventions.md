@@ -18,7 +18,7 @@
 
 ```gdscript
 class_name MyClass
-extends Node2D
+extends Node3D  # 本项目为 3D 游戏，根据节点类型选择 Node3D / CharacterBody3D 等
 
 # 信号
 signal health_changed(new_value: int)
@@ -33,7 +33,7 @@ const MAX_SPEED := 200.0
 @export var speed: float = 100.0
 
 # @onready 变量
-@onready var sprite: Sprite2D = $Sprite2D
+@onready var mesh: MeshInstance3D = $MeshInstance3D
 
 # 普通变量
 var current_state: State = State.IDLE
@@ -57,7 +57,7 @@ func _update_animation() -> void:
     pass
 
 # 信号回调
-func _on_area_entered(area: Area2D) -> void:
+func _on_area_entered(area: Area3D) -> void:
     pass
 ```
 
@@ -67,6 +67,34 @@ func _on_area_entered(area: Area2D) -> void:
 - 父节点向子节点通信：直接调用方法
 - 跨系统通信：通过 EventBus
 - 信号命名用过去时态，表示"事件已发生"
+
+### EventBus 事件分类规则
+
+当 event_bus.gd 中信号超过 8 个时，按域分组管理：
+
+```gdscript
+# event_bus.gd
+extends Node
+
+# ── player ──
+signal player_damaged(amount: int, source: String)
+signal player_died(player_id: int)
+
+# ── loot ──
+signal loot_picked_up(loot_id: String, carrier_id: int)
+signal loot_dropped(loot_id: String, position: Vector3)
+
+# ── level ──
+signal level_completed(score: int)
+
+# ── ui ──
+signal ui_notification_requested(text: String, duration: float)
+```
+
+命名规则：`域_动作_past_tense`（如 `player_damaged`、`loot_picked_up`）。
+
+> 如果事件超过 30 个，可考虑拆成多个 Autoload（PlayerEvents、LevelEvents），
+> 但对独立开发者来说大概率不需要。
 
 ## 类型标注
 
