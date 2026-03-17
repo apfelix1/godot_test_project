@@ -31,10 +31,13 @@ Main (Node3D)
 
 ## 系统间通信
 
-- 同一场景内：直接信号连接（node.signal.connect）
-- 跨系统通信：通过 EventBus 全局信号
+- 广播型事件（一对多，发送方不关心谁在听）：EventBus 全局信号
+- 命令式调用（一对一，调用方明确知道目标）：直接引用目标节点
 - 父子节点：直接方法调用（向下）/ 信号（向上）
-- 网络同步：待定（Phase 0 Step 8 确定）
+- 稳定单向依赖（如 HUD 读取 PlayerStats）：直接引用，不绕 EventBus
+- 网络同步：按需（Phase 0 Step 8 确定，单机游戏可跳过）
+
+> 详细决策树见 ai/context/coding_conventions.md「信号与通信原则」
 
 ## 目录与职责
 

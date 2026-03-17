@@ -61,12 +61,29 @@ func _on_area_entered(area: Area3D) -> void:
     pass
 ```
 
-## 信号使用原则
+## 信号与通信原则
 
-- 子节点向父节点通信：用信号
-- 父节点向子节点通信：直接调用方法
-- 跨系统通信：通过 EventBus
+### 通信方式决策树
+
+```
+需要通知其他系统？
+├─ 广播型事件（一对多，发送方不关心谁在听）
+│   → EventBus 全局信号
+│   例：player_damaged、level_completed、loot_picked_up
+│
+├─ 命令式调用（一对一，调用方明确知道目标）
+│   → 直接引用目标节点，调用方法
+│   例：inventory.add_item()、health_bar.update_display()
+│
+└─ 父子节点协作
+    ├─ 子 → 父：信号（向上冒泡）
+    └─ 父 → 子：直接调用方法（向下指令）
+```
+
+简记：**广播走 EventBus，命令走直调，父子走信号/方法。**
+
 - 信号命名用过去时态，表示"事件已发生"
+- 稳定的单向依赖（如 HUD 读取 PlayerStats）优先用直接引用，不要绕 EventBus
 
 ### EventBus 事件分类规则
 
@@ -93,6 +110,7 @@ signal ui_notification_requested(text: String, duration: float)
 
 命名规则：`域_动作_past_tense`（如 `player_damaged`、`loot_picked_up`）。
 
+> MVP 阶段信号少于 8 个时不需要分组，直接平铺即可。
 > 如果事件超过 30 个，可考虑拆成多个 Autoload（PlayerEvents、LevelEvents），
 > 但对独立开发者来说大概率不需要。
 

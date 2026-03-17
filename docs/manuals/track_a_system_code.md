@@ -5,11 +5,14 @@
 >
 > 系列手册：
 > - **Track A: 系统/代码** ← 你在这里
-> - Track B: UI/UX（待编写）
-> - Track C: 视觉美术（待编写）
-> - Track D: 音频（待编写）
+> - Track B: UI/UX（Phase 0a 后可预研，手册待编写）
+> - Track C: 视觉美术（C1 风格预研可在 0a 后开始，手册待编写）
+> - Track D: 音频（需 Phase 0b，手册待编写）
 
 ---
+
+> **MVP 简化**：MVP 阶段推荐双模型工作流 — ChatGPT（发散讨论）+ Claude Code（收束、实现、review，直接读项目文件）。
+> Kimi 为可选，适合后期批量模板和配置生成。
 
 ## 快速参考
 
@@ -18,7 +21,7 @@
 ```
 A1 设计讨论        A2 架构收束        A3 任务拆解        A4 代码实现        A5 Review
 ChatGPT           Claude             Claude Code        Claude Code       Claude Code
-                                                        / Kimi
+                                                        / Kimi(可选)
 "做什么？"    →   "怎么做？"    →   "拆成几步？"  →   "写代码"     →   "检查质量"
 
 产出:             产出:              产出:              产出:             产出:
@@ -35,21 +38,27 @@ gdd.md           tdd.md             tasks.md           source/          git comm
 | ChatGPT | 设计讨论 | A1 阶段 |
 | Claude（网页版或 Claude Code） | 架构收束 | A2 阶段 |
 | Claude Code（终端） | 任务拆解、编码、review | A3-A5 阶段 |
-| Kimi | 批量生成配置/数据 | A4 阶段（需要时） |
+| Kimi | 批量生成配置/数据（可选） | A4 阶段（需要时） |
 | Godot 编辑器 | 运行测试、摆节点 | A4-A5 阶段 |
 
 ### 前置条件
 
-**Track A 要求 Phase 0 已完成。** gdd.md 和 tdd.md 不能有"待定"字样。
-如果还没完成 Phase 0，请先执行 → [Phase 0 用户手册](phase0_project_init.md)
+**Track A 要求 Phase 0a 已完成。** 不要求所有文档零"待定"，只要求下表中的必需章节已填写。
+如果还没完成 Phase 0a，请先执行 → [Phase 0 用户手册](phase0_project_init.md)
 
-必读文件：
+必读文件（与 Phase 0 Track 入口矩阵对齐）：
 
 | 文件 | 最低要求 |
 |------|----------|
-| `docs/gdd.md` — 概览章节 | 游戏名称、类型、核心玩法一句话 |
-| `docs/tdd.md` — 架构概览章节 | Autoload 列表、入口场景 |
+| `docs/gdd.md` — 概览 | 游戏名称、类型、核心玩法一句话 |
+| `docs/gdd.md` — 核心机制 | 主机制和辅机制定义 |
+| `docs/gdd.md` — 游戏循环 | 30 秒/核心/长期循环 |
+| `docs/gdd.md` — 角色/实体 (P0) | P0 角色列表 |
+| `docs/gdd.md` — 里程碑 (MVP) | MVP 范围和验收标准 |
+| `docs/tdd.md` — 核心系统 (MVP) | MVP 系统列表和依赖 |
 | `CLAUDE.md` | 项目结构和编码规范摘要 |
+
+> 详见 [Phase 0 的 Track 入口必需章节矩阵](phase0_project_init.md#track-入口必需章节矩阵)。
 
 ---
 
@@ -74,6 +83,9 @@ gdd.md           tdd.md             tasks.md           source/          git comm
 
 1. 打开 `docs/gdd.md`，复制 **"概览"** 章节全文
 2. 打开 `docs/tdd.md`，复制 **"核心系统"** 章节中已有系统的名称列表（只要名称，不需要全部细节）
+
+> **提示**：建议一次性复制所需上下文，避免多次切换文件。
+> 如果使用 Claude Code，它可以直接读取项目文件，无需手动复制。
 
 **第 2 步：打开 ChatGPT，粘贴以下 prompt**
 
@@ -165,6 +177,10 @@ ChatGPT 的第一轮输出通常不是最终方案。追问以下问题来收敛
 
 **第 2 步：打开 Claude（网页版或 Claude Code），粘贴以下 prompt**
 
+> **工具选择**：
+> - Claude Code：直接读取项目文件，无需复制上下文。推荐。
+> - Claude web：需要手动复制下方上下文块。
+
 ```
 ## 上下文
 [在这里粘贴 tdd.md "架构概览"章节]
@@ -218,7 +234,7 @@ ChatGPT 的第一轮输出通常不是最终方案。追问以下问题来收敛
 - 节点树结构是否符合 `architecture.md` 的场景树组织方式
 - 信号命名是否用了 past_tense（如 `health_changed` 而非 `change_health`）
 - 是否有循环依赖
-- EventBus 事件是否必要（同场景内的通信不需要走 EventBus）
+- EventBus 事件是否必要（参考通信决策树：广播型一对多 → EventBus，命令式一对一 → 直接引用，父子 → 信号向上/方法向下）
 
 **第 4 步：保存规格**
 
@@ -241,8 +257,13 @@ ChatGPT 的第一轮输出通常不是最终方案。追问以下问题来收敛
 | 问题 | 解决方案 |
 |------|----------|
 | Claude 给的节点树太深 | 要求"节点树不超过 3 层，扁平优先" |
-| 不确定该用 EventBus 还是直接信号 | 规则：跨系统 → EventBus，父子节点 → 直接，同场景兄弟 → 直接信号 |
+| 不确定该用 EventBus 还是直接信号 | 参考通信决策树（见下方） |
 | 规格太粗，拆不出任务 | 要求 Claude "把每个节点的职责再展开，列出它需要的方法" |
+
+> 通信方式选择（详见 ai/context/coding_conventions.md）：
+> - 广播型事件（一对多）→ EventBus
+> - 命令式调用（一对一，目标明确）→ 直接引用
+> - 父子节点 → 信号向上，方法向下
 
 ---
 
@@ -343,7 +364,7 @@ Claude Code 可以直接读取项目文件，不需要手动复制上下文。
 从 tasks.md 取一个任务
     │
     ├── 核心逻辑 / 跨文件修改 / 复杂 bug → Claude Code
-    ├── 配置表 / 数值表 / CSV / JSON    → Kimi
+    ├── 配置表 / 数值表 / CSV / JSON    → Claude Code（或可选 Kimi）
     └── 摆节点 / 调参数 / 试手感        → 你自己在 Godot 里做
     │
 完成后立刻 F5/F6 验证
@@ -374,7 +395,7 @@ Claude Code 可以直接读取项目文件，不需要手动复制上下文。
 
 ## 要求
 1. 严格遵循 coding_conventions.md 的脚本结构顺序和命名规则
-2. 使用 EventBus 做跨系统通信，不直接引用其他系统节点
+2. 通信方式遵循决策树：广播型（一对多）→ EventBus，命令式（一对一）→ 直接引用，父子节点 → 信号向上/方法向下
 3. @export 变量用于编辑器可调参数
 4. 函数参数和返回值必须标注类型
 5. 完成后告诉我需要在 Godot 编辑器里手动做什么（如连接信号、摆节点）
@@ -397,7 +418,9 @@ Claude Code 可以直接读取项目文件，不需要手动复制上下文。
 
 在 `docs/tasks.md` 中把 `- [ ]` 改为 `- [x]`。
 
-### 操作步骤（Kimi — 批量生成）
+### 操作步骤（Kimi — 批量生成，可选）
+
+> 核心逻辑用 Claude Code 实现。批量模板、配置文件等重复性工作可选用 Kimi。
 
 当任务涉及批量数据生成时（如物品表、掉落表、敌人属性表）：
 
@@ -443,9 +466,16 @@ Claude Code 可以直接读取项目文件，不需要手动复制上下文。
 
 ## A5：Code Review
 
+### 使用模式
+
+Track A 支持两种使用模式：
+
+- **独立模式**：直接从 A1 开始，A5 完成 review + git commit。
+- **迭代模式**：被迭代手册 A-4 调用进入 A4/A5。此模式下 A5 只做 review 和 Godot 验证，**跳过 git commit**（提交统一在迭代手册 Path C 处理）。
+
 ### 什么时候用
 
-- 每次准备 git commit 之前
+- 每次准备 git commit 之前（独立模式）
 - 一个完整功能的所有任务都完成后做一次全量 review
 
 ### 操作步骤
@@ -499,7 +529,9 @@ Claude Code 可以直接读取项目文件，不需要手动复制上下文。
 □ 检查编辑器中的 @export 变量 → 能正常调整
 ```
 
-**第 4 步：Git 提交**
+**第 4 步：Git 提交**（独立模式执行，迭代模式跳过）
+
+> 如果是通过迭代手册 A-4 调用的，跳过此步骤，提交统一在 Path C 处理。
 
 所有检查通过后：
 
@@ -619,16 +651,23 @@ Claude Code 生成代码 → 你在 Godot 中 F6 测试 → 通过 → 标记完
 
 ## 文档更新时机
 
-完成一个功能的完整 A1-A5 后，检查是否需要更新：
+> **MVP 文档规则**：开发期间只维护 tasks.md + tdd.md 的增量变化。
+> 完整文档同步推迟到迭代手册路径 C（并入主线）时执行。
 
-| 文件 | 什么时候更新 | 更新什么 |
-|------|-------------|----------|
-| `docs/gdd.md` | A1 结束后 | 新功能描述 |
-| `docs/tdd.md` | A2 结束后 | 新系统规格 |
-| `docs/tasks.md` | A3-A4 持续更新 | 任务状态 |
-| `ai/context/architecture.md` | 架构有变化时 | 场景树、通信规则 |
-| `docs/changelog.md` | 发版时 | 版本变更记录 |
-| `CLAUDE.md` | 项目结构变化时 | 结构摘要 |
+采用两点更新模型：
+
+| 时机 | 触发条件 | 更新内容 |
+|------|----------|----------|
+| **设计冻结**（A2 完成后） | 方案确定，准备拆任务 | 一次性更新 `gdd.md` / `tdd.md` / `architecture.md` |
+| **实现偏差**（代码完成后） | 实现与设计有出入 | 仅更新偏离部分的文档 |
+
+其他文件更新参考：
+
+| 文件 | 什么时候更新 |
+|------|-------------|
+| `docs/tasks.md` | A3-A4 持续更新 |
+| `docs/changelog.md` | 发版时 |
+| `CLAUDE.md` | 项目结构变化时 |
 
 > 如果更新了 gdd.md 或 tdd.md 的核心章节，记得执行 **M1 项目变更协议**
 > （详见 docs/dev_workflow.md "七、Meta — 项目变更协议"章节）。
@@ -646,7 +685,7 @@ Claude Code 生成代码 → 你在 Godot 中 F6 测试 → 通过 → 标记完
 │  A1 → ChatGPT   "做什么？选哪个方案？"           │
 │  A2 → Claude    "怎么做？节点树？信号？数据？"   │
 │  A3 → CC        "拆成几个任务？"                 │
-│  A4 → CC/Kimi   "写代码 → F5 测试 → 标完成"     │
+│  A4 → CC/Kimi?  "写代码 → F5 测试 → 标完成"     │
 │  A5 → CC        "review diff → 修问题 → commit"  │
 │                                                  │
 │  质量门口诀：                                    │

@@ -17,6 +17,8 @@
 | 视觉生产 | ComfyUI / SD / MJ | 概念图、角色立绘、场景图、UI 素材生成 |
 | 音频生产 | Suno / Udio | 背景音乐、音效生成 |
 
+> **MVP 简化**：MVP 阶段推荐双模型制 — ChatGPT + Claude Code。Kimi 为可选，适合后期批量工作。
+
 ### 一句话路由
 
 ```
@@ -30,22 +32,22 @@
 ### 开发阶段
 
 ```
-Phase 0: 项目初始化  ──  生成 gdd.md / tdd.md 全部基础 context（一次性）
-                         详见 docs/manuals/phase0_project_init.md
+Phase 0: 项目初始化
+  Phase 0a（原型初始化）──  锁定概念、核心循环、MVP 边界、技术骨架
+  Phase 0b（生产初始化）──  补全美术/音频/完整里程碑（Track C/D 前置）
+  详见 docs/manuals/phase0_project_init.md
 
-Phase 0 完成后，进入四条并行工作线：
+Phase 0a 完成后，进入四条并行工作线：
 
-Track A: 系统/代码  ──  ChatGPT → Claude Code → Kimi
+Track A: 系统/代码  ──  ChatGPT → Claude Code（MVP 双模型制）
 Track B: UI/UX      ──  ChatGPT/Claude → Claude Code → 你在 Godot 搭
-Track C: 视觉美术   ──  ChatGPT → ComfyUI/SD/MJ → Kimi 批量
-Track D: 音频       ──  ChatGPT → Suno/Udio
+Track C: 视觉美术   ──  ChatGPT → ComfyUI/SD/MJ → Kimi 批量（需 Phase 0b）
+Track D: 音频       ──  ChatGPT → Suno/Udio（需 Phase 0b）
 
 迭代开发（新增功能/素材/并入）详见 docs/manuals/iteration_add_feature.md
 ```
 
-> **重要**：所有 Track 的 prompt 都引用 gdd.md / tdd.md 的上下文。
-> 如果这些文件还有"待定"，prompt 的效果会大打折扣。
-> 务必先完成 Phase 0。
+> **重要**：Track A 只需 Phase 0a 即可正式执行。Track B（UI 预研）和 Track C 的 C1（风格预研）可在 Phase 0a 后开始，正式执行需 Phase 0b。Track D 需要 Phase 0b。
 
 ---
 
@@ -79,7 +81,10 @@ Track D: 音频       ──  ChatGPT → Suno/Udio
 | 编码规范 | ai/context/coding_conventions.md | 全文 |
 | 场景树结构 | ai/context/architecture.md | 全文 |
 
-**规则：prompt 里只写"复制 gdd.md 的 XX 章节"，不要把内容抄进 prompt。**
+**规则：**
+- **能直接读文件的 agent（Claude Code）**：禁止在 prompt 中复制项目内容，直接让它读文件。
+- **不能读文件的 web 模型（ChatGPT / Claude web）**：只复制最小必要章节，prompt 里标注"复制 gdd.md 的 XX 章节"。
+- 不要把整个 gdd.md / tdd.md 全文粘进 prompt，只粘当前任务需要的章节。
 
 ---
 
@@ -91,8 +96,8 @@ Track D: 音频       ──  ChatGPT → Suno/Udio
 ### Track A — 系统/代码
 
 ```
-A1 设计讨论(ChatGPT) → A2 架构收束(Claude) → A3 任务拆解(CC)
-→ A4 代码实现(CC/Kimi) → A5 Code Review(CC)
+A1 设计讨论(ChatGPT) → A2 架构收束(Claude Code)
+→ A3 任务拆解(CC) → A4 代码实现(CC) → A5 Code Review(CC)
 ```
 
 详细操作 → [Track A 用户手册](manuals/track_a_system_code.md)
@@ -104,7 +109,7 @@ B1 交互流程设计(ChatGPT) → B2 节点树 & 布局(CC)
 → B3 UI 脚本生成(CC)
 ```
 
-详细操作 → Track B 用户手册（待编写）
+详细操作 → Track B 用户手册（Phase 0a 后可预研，手册待编写）
 
 ### Track C — 视觉美术
 
@@ -113,7 +118,7 @@ C1 风格定义(ChatGPT) → C2 概念图生成(ComfyUI/SD/MJ)
 → C3 批量 Prompt 生成(Kimi) → C4 Godot 资产集成(CC)
 ```
 
-详细操作 → Track C 用户手册（待编写）
+详细操作 → Track C 用户手册（C1 风格预研可在 0a 后开始，手册待编写）
 
 ### Track D — 音频
 
@@ -122,7 +127,7 @@ D1 音频方向定义(ChatGPT) → D2 音乐生成(Suno/Udio)
 → D3 音效生成(Suno/专用工具)
 ```
 
-详细操作 → Track D 用户手册（待编写）
+详细操作 → Track D 用户手册（需 Phase 0b，手册待编写）
 
 ### 迭代开发（新增 / 素材 / Bug / 并入）
 
@@ -229,12 +234,13 @@ Track B (UI 方案)  ──→ B3 脚本生成 ──→ Track A (系统连接 U
 - [ ] 音乐文件为 .ogg，音效为 .wav
 - [ ] 放在 assets/audio/music/ 或 assets/audio/sfx/
 - [ ] AudioStreamPlayer3D 节点配置正确（3D 游戏用 3D 版本）
-- [ ] 通过 EventBus 触发播放
+- [ ] 通过 EventBus 触发播放（仅广播型事件走 EventBus）
 
 **UI → 系统**：
-- [ ] UI 信号通过 EventBus 传递给游戏系统
+- [ ] UI 广播型状态变化通过 EventBus 传递给游戏系统
 - [ ] 游戏状态变化通过 EventBus 通知 UI 更新
-- [ ] UI 不直接引用游戏系统节点
+- [ ] 稳定单向依赖（如 HUD 读取数据）可直接引用，不必绕 EventBus
+- [ ] UI 不直接引用游戏系统节点（广播型通信）
 
 ---
 
@@ -246,23 +252,27 @@ Track B (UI 方案)  ──→ B3 脚本生成 ──→ Track A (系统连接 U
   2. 进入对应 Track 开始工作
 
 每个任务完成：
-  3. 运行 A5 Review
-  4. F5/F6 在 Godot 里验证
+  3. F5/F6 在 Godot 里验证
+  4. (推荐) 3 个以上系统后，运行 headless smoke test
+
+每次准备提交前：
+  5. 走 A5 全流程 Review
 
 每周末 / 里程碑：
-  5. 更新 docs/changelog.md
-  6. 检查 gdd.md / tdd.md 是否需要更新
-  7. 如果更新了，运行 M1 变更协议
+  6. 更新 docs/changelog.md
+  7. 检查 gdd.md / tdd.md 是否需要更新
+  8. 如果更新了，运行 M1 变更协议
 
 开新功能时：
   → 走迭代手册路径 A（docs/manuals/iteration_add_feature.md）
+  → 三车道并行：主功能(A) + 素材调参(B) + 紧急修复(D)
   → 不同 Track 可以并行推进
 ```
 
 ### Track 间的推荐节奏
 
 ```
-Phase 1-2（设计）：Track A + Track C 的 C1 同时进行
+Phase 1-2（设计）：Track A + Track C 的 C1（风格预研）同时进行
                   先确定"做什么"和"长什么样"
 Phase 3（架构）：  Track A 为主，Track B 开始 B1
 Phase 4（开发）：  Track A 为主，Track B/C/D 并行推进
@@ -275,12 +285,12 @@ Phase 6（发布）：  打版本
 ## 七、避坑清单
 
 1. **AI 给方案，你来选。** 不要让 AI 替你做设计决策。
-2. **一次一个功能。** 做完再开下一个，不要并行多个功能。
-3. **不要跳过测试。** 每个任务完成后立刻 F5 跑一遍。
+2. **三车道并行。** 主功能线一次一个，但素材/调参和紧急修复可以并行。
+3. **不要跳过测试。** 每个任务完成后立刻 F5 跑一遍。3 个以上系统后加 headless smoke test。
 4. **文档要准确。** 文档和代码不一致比没有文档更糟。宁可少写，但要准确。
 5. **核心逻辑用 Claude。** Kimi 只做批量活，核心代码不能省。
 6. **每次对话聚焦一个任务。** 用 CLAUDE.md 和 ai/context/ 提供背景，不要一次塞太多。
 7. **先跑通最小闭环。** 先做一个能玩的原型，再考虑优化和扩展。
 8. **美术风格先定后做。** 不要没定风格就开始生图，否则后期风格不统一。
 9. **改了项目信息就跑 M1。** 不要偷懒手动改一个文件，用变更协议保持一致性。
-10. **Prompt 只引用不复制。** 上下文写在 gdd.md/tdd.md 里，prompt 里写"复制 XX 章节"。
+10. **Prompt 上下文规则。** 能直接读文件的 agent（Claude Code）禁止在 prompt 中复制项目内容，直接让它读文件；不能读文件的 web 模型只复制最小必要章节。
