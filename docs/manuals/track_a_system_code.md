@@ -14,6 +14,16 @@
 > **MVP 简化**：MVP 阶段推荐双模型工作流 — ChatGPT（发散讨论）+ Claude Code（收束、实现、review，直接读项目文件）。
 > Kimi 为可选，适合后期批量模板和配置生成。
 
+## 共享协作文件
+
+Track A 默认使用以下共享文件：
+
+- `AGENTS.md`：仓库级规则与接手顺序
+- `docs/project_status.md`：当前真实状态
+- `docs/tasks.md`：任务面板与 Sprint 状态机
+- `docs/ai_handoff.md`：交接记录
+- `CLAUDE.md`：Claude 兼容入口（若使用 Claude 系工具）
+
 ## 快速参考
 
 ### 流水线总览
@@ -56,7 +66,8 @@ gdd.md           tdd.md             tasks.md           source/          git comm
 | `docs/gdd.md` — 角色/实体 (P0) | P0 角色列表 |
 | `docs/gdd.md` — 里程碑 (MVP) | MVP 范围和验收标准 |
 | `docs/tdd.md` — 核心系统 (MVP) | MVP 系统列表和依赖 |
-| `CLAUDE.md` | 项目结构和编码规范摘要 |
+| `AGENTS.md` | 接手顺序、协作规则、任务状态机 |
+| `docs/project_status.md` | 当前仓库真实状态 |
 
 > 详见 [Phase 0 的 Track 入口必需章节矩阵](phase0_project_init.md#track-入口必需章节矩阵)。
 
@@ -284,7 +295,7 @@ Claude Code 可以直接读取项目文件，不需要手动复制上下文。
 
 ```
 请阅读 docs/gdd.md 中关于 {{功能名称}} 的描述，
-结合 docs/tdd.md 的架构设计和 CLAUDE.md 的编码规范。
+结合 docs/tdd.md 的架构设计、AGENTS.md 的协作规则和 ai/context/coding_conventions.md 的编码规范。
 
 以下是这个功能的工程规格：
 {{粘贴 A2 的完整输出}}
@@ -302,6 +313,9 @@ Claude Code 可以直接读取项目文件，不需要手动复制上下文。
 
 ## 输出格式（写入 docs/tasks.md）
 ## Sprint: {{功能名称}}
+状态：draft
+任务类型：code
+建议执行者：Codex / Claude Code
 目标：{{一句话}}
 截止：{{日期}}
 
@@ -378,12 +392,14 @@ Claude Code 可以直接读取项目文件，不需要手动复制上下文。
 **第 1 步：从 tasks.md 选取一个任务**
 
 按顺序取 P0 任务。确认没有未完成的依赖。
+如果这是该 Sprint 的第一个实际编码任务，把 Sprint 状态从 `draft` 改为 `in_progress`。
 
 **第 2 步：在 Claude Code 终端输入以下 prompt**
 
 ```
 请阅读以下文件获取上下文：
-- CLAUDE.md（项目规则）
+- AGENTS.md（项目规则与接手顺序）
+- docs/project_status.md（当前真实状态）
 - ai/context/coding_conventions.md（编码规范）
 - ai/context/architecture.md（架构约定）
 
@@ -652,14 +668,15 @@ Claude Code 生成代码 → 你在 Godot 中 F6 测试 → 通过 → 标记完
 ## 文档更新时机
 
 > **MVP 文档规则**：开发期间只维护 tasks.md + tdd.md 的增量变化。
-> 完整文档同步推迟到迭代手册路径 C（并入主线）时执行。
+> 统一规则：设计冻结时更新 gdd.md / tdd.md；开发过程中持续维护 tasks.md；实现偏差和并入时再同步状态与相关文档。
 
-采用两点更新模型：
+采用统一的三段更新模型：
 
 | 时机 | 触发条件 | 更新内容 |
 |------|----------|----------|
-| **设计冻结**（A2 完成后） | 方案确定，准备拆任务 | 一次性更新 `gdd.md` / `tdd.md` / `architecture.md` |
-| **实现偏差**（代码完成后） | 实现与设计有出入 | 仅更新偏离部分的文档 |
+| **设计冻结**（A2 完成后） | 方案确定，准备拆任务 | 更新 `gdd.md` / `tdd.md` 中与该功能直接相关的内容 |
+| **开发进行中**（A3-A4） | 任务状态发生变化 | 持续更新 `docs/tasks.md` |
+| **实现偏差或并入**（A5 / Path C） | 实现与设计有出入，或准备并入主线 | 更新偏离部分的 `tdd.md` / `architecture.md` / `project_status.md`，必要时同步 `AGENTS.md` / `CLAUDE.md` |
 
 其他文件更新参考：
 
@@ -667,7 +684,9 @@ Claude Code 生成代码 → 你在 Godot 中 F6 测试 → 通过 → 标记完
 |------|-------------|
 | `docs/tasks.md` | A3-A4 持续更新 |
 | `docs/changelog.md` | 发版时 |
-| `CLAUDE.md` | 项目结构变化时 |
+| `docs/project_status.md` | 仓库真实状态变化时 |
+| `AGENTS.md` | 项目级协作规则变化时 |
+| `CLAUDE.md` | 需要同步 Claude 兼容入口时 |
 
 > 如果更新了 gdd.md 或 tdd.md 的核心章节，记得执行 **M1 项目变更协议**
 > （详见 docs/dev_workflow.md "七、Meta — 项目变更协议"章节）。

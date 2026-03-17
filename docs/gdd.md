@@ -55,14 +55,14 @@
 ## 美术风格
 
 ### 风格方向
-- 主风格：（待定，如 pixel art, 16-bit style）
-- 子风格参考：（待定，如 Celeste + Dead Cells）
+- 主风格：（待定，如 stylized low-poly, hand-painted 3D）
+- 子风格参考：（待定，如轻奇幻低多边形 + 卡通遗迹探险）
 
 ### 技术参数
-- 游戏分辨率：（待定，如 320x180 → 缩放至 1920x1080）
-- 角色精灵尺寸：（待定，如 32x32）
-- 动画帧率：（待定，如 12fps）
-- 缩放模式：（待定，如 nearest neighbor）
+- 游戏分辨率：（待定，如 1920x1080）
+- 角色模型规格：（待定，如角色高度、面数预算、单位比例）
+- 动画帧率：（待定，如 30fps / 60fps）
+- 渲染与过滤设置：（待定，如抗锯齿、阴影质量、贴图过滤）
 
 ### 调色板
 - 主色：（待定，hex 值 + 用途）
@@ -83,7 +83,7 @@
 
 正向 prompt 模板：
 ```
-（待定，如：pixel art, 16-bit style, [subject], [action], [color palette], clean lines, no anti-aliasing）
+（待定，如：stylized 3D game asset, [subject], [action], [palette], readable silhouette, clean presentation）
 ```
 
 负向 prompt 模板：
@@ -92,7 +92,7 @@
 ```
 
 ### 风格一致性检查清单
-- [ ] 所有角色使用相同精灵尺寸
+- [ ] 所有角色遵循相同的模型比例与规格
 - [ ] 颜色在调色板范围内
 - [ ] 光影方向统一
 - [ ] 描边风格统一

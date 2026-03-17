@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.0.6 — 2026-03-18
+### 新增
+- `AGENTS.md` 作为仓库级唯一权威规则入口，明确多 AI 协作模式、接手顺序、任务类型、Sprint 状态机和统一执行闭环
+- `docs/project_status.md` 作为“当前真实状态”快照，区分设计设想与已落地事实
+- `docs/ai_handoff.md` 作为 AI 交接记录，支持多工具低损耗接力
+- `ai/context/web_brief.md` 作为给 ChatGPT / Claude web 等不能直接读仓库模型的一页简报
+
+### 改进
+- `CLAUDE.md` 降级为 Claude / Claude Code 兼容入口，并明确以 `AGENTS.md` 为准，避免双 source of truth
+- `README.md` 改为指向多 AI 协作入口：`AGENTS.md`、`project_status.md`、`tasks.md`、`ai_handoff.md`
+- `docs/tasks.md` 升级为统一 Sprint 状态机：`draft / in_progress / code_complete / merged`
+- `docs/dev_workflow.md` 重写为多 AI 协作总览，明确文档职责分工、角色矩阵、接手顺序和文档更新规则
+- Phase 0 手册对齐新协作结构，并修正 Step 7 / Step 8 的顺序问题：MVP 进度总览改为在 Step 8 之后生成
+- Track A 手册改为基于 `AGENTS.md`、`project_status.md`、`tasks.md`、`ai_handoff.md` 的接手模型
+- 迭代手册统一接入新状态机和交接模型
+- 迭代手册 Path B 从旧的 2D 资源导入思路重写为 3D 资源流程（models / textures / materials / audio / fonts / data）
+- Phase 0 美术方向示例从 2D 像素项目措辞调整为更符合当前 3D 项目方向的示例
+
+### 修复
+- 清理 manuals 中把 `CLAUDE.md` 当唯一主入口的旧表述
+- 清理 manuals 和 workflow 中旧的任务状态示例（如“已完成”/emoji 状态）与新状态机不一致的问题
+- 补齐多 AI 协作文档之间的引用关系，减少不同工具接手时的上下文漂移风险
+- 同步 `docs/gdd.md` 中美术章节的旧 2D / 像素风示例占位，避免与当前 3D 项目方向继续冲突
+
 ## v0.0.5 — 2026-03-17
 ### 修复
 - Track B/C 可用时机对齐：Track A 0a 后正式执行，Track B 0a 后可预研（正式执行需 0b），Track C 的 C1（风格预研）可在 0a 后开始、C2-C4 需 0b

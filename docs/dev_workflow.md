@@ -1,296 +1,105 @@
-# 独立开发者 AI 辅助工作流
+# 多 AI 协作工作流
 
-> Godot 4.3 + GDScript | 主力：ChatGPT + Claude (Claude Code) | 辅助：Kimi
-> 美术：ComfyUI / SD / Midjourney | 音频：Suno / Udio
+> 本文件是多 AI 协作的总览，不替代 `AGENTS.md`。
+> 仓库级规则以 `AGENTS.md` 为准，详细步骤见 `docs/manuals/*`。
 
----
+## 一、协作目标
 
-## 一、总览
+本项目不是单一 AI 的工作流，而是一个可被多个 AI 轮流接手的仓库。
 
-### 模型 & 工具分工
+目标不是“让每个 AI 都读完所有文档”，而是：
 
-| 角色 | 工具 | 负责什么 |
-|------|------|----------|
-| 创意大脑 | ChatGPT | 发散讨论、设计决策、概念定义、文案审校 |
-| 工程核心 | Claude / Claude Code | 收束结构化、架构设计、核心代码、review、测试修复 |
-| 低成本劳力 | Kimi | 批量配置、工具脚本、模板代码、文档清洗、批量 prompt |
-| 视觉生产 | ComfyUI / SD / MJ | 概念图、角色立绘、场景图、UI 素材生成 |
-| 音频生产 | Suno / Udio | 背景音乐、音效生成 |
+1. 让任何 AI 都知道项目背景
+2. 让任何 AI 都知道当前真实状态
+3. 让任何 AI 都知道当前轮到它接什么工作
+4. 让不同 AI 之间可以低损耗交接
 
-> **MVP 简化**：MVP 阶段推荐双模型制 — ChatGPT + Claude Code。Kimi 为可选，适合后期批量工作。
+## 二、核心文件分工
 
-### 一句话路由
-
-```
-想不清楚 → ChatGPT
-想清楚了要落地 → Claude / Claude Code
-重复/批量/便宜活 → Kimi
-要图 → ComfyUI / SD / MJ
-要声音 → Suno / Udio
-```
-
-### 开发阶段
-
-```
-Phase 0: 项目初始化
-  Phase 0a（原型初始化）──  锁定概念、核心循环、MVP 边界、技术骨架
-  Phase 0b（生产初始化）──  补全美术/音频/完整里程碑（Track C/D 前置）
-  详见 docs/manuals/phase0_project_init.md
-
-Phase 0a 完成后，进入四条并行工作线：
-
-Track A: 系统/代码  ──  ChatGPT → Claude Code（MVP 双模型制）
-Track B: UI/UX      ──  ChatGPT/Claude → Claude Code → 你在 Godot 搭
-Track C: 视觉美术   ──  ChatGPT → ComfyUI/SD/MJ → Kimi 批量（需 Phase 0b）
-Track D: 音频       ──  ChatGPT → Suno/Udio（需 Phase 0b）
-
-迭代开发（新增功能/素材/并入）详见 docs/manuals/iteration_add_feature.md
-```
-
-> **重要**：Track A 只需 Phase 0a 即可正式执行。Track B（UI 预研）和 Track C 的 C1（风格预研）可在 Phase 0a 后开始，正式执行需 Phase 0b。Track D 需要 Phase 0b。
-
----
-
-## 二、Prompt 复用系统
-
-### 设计原则
-
-所有 prompt 使用 **三块结构**，保证稳定性和复用性：
-
-```
-┌─────────────────────────────┐
-│ 🔒 固定上下文（Context）      │  ← 从 gdd.md / tdd.md 对应章节复制
-│    改了源文件，所有 prompt    │     自动跟着更新
-│    自动更新                  │
-├─────────────────────────────┤
-│ ✏️ 可变输入（Input）          │  ← 用 {{槽位}} 标记，每次只填这部分
-├─────────────────────────────┤
-│ 📋 输出规范（Output Spec）    │  ← 固定的输出格式要求
-└─────────────────────────────┘
-```
-
-### 上下文的唯一来源（Source of Truth）
-
-| 上下文类型 | 来源文件 | 章节 |
-|-----------|----------|------|
-| 项目概览 | docs/gdd.md | 概览 |
-| 核心机制 | docs/gdd.md | 核心机制 |
-| 美术风格 | docs/gdd.md | 美术风格 |
-| 音频方向 | docs/gdd.md | 音频 |
-| 技术架构 | docs/tdd.md | 架构概览 + 核心系统 |
-| 编码规范 | ai/context/coding_conventions.md | 全文 |
-| 场景树结构 | ai/context/architecture.md | 全文 |
-
-**规则：**
-- **能直接读文件的 agent（Claude Code）**：禁止在 prompt 中复制项目内容，直接让它读文件。
-- **不能读文件的 web 模型（ChatGPT / Claude web）**：只复制最小必要章节，prompt 里标注"复制 gdd.md 的 XX 章节"。
-- 不要把整个 gdd.md / tdd.md 全文粘进 prompt，只粘当前任务需要的章节。
-
----
-
-## 三、Track 详细流程（见各手册）
-
-> 以下 Track 的完整 prompt 模板和操作步骤已移至独立手册，
-> dev_workflow.md 只做总览和路由，避免两处维护不同步。
-
-### Track A — 系统/代码
-
-```
-A1 设计讨论(ChatGPT) → A2 架构收束(Claude Code)
-→ A3 任务拆解(CC) → A4 代码实现(CC) → A5 Code Review(CC)
-```
-
-详细操作 → [Track A 用户手册](manuals/track_a_system_code.md)
-
-### Track B — UI/UX
-
-```
-B1 交互流程设计(ChatGPT) → B2 节点树 & 布局(CC)
-→ B3 UI 脚本生成(CC)
-```
-
-详细操作 → Track B 用户手册（Phase 0a 后可预研，手册待编写）
-
-### Track C — 视觉美术
-
-```
-C1 风格定义(ChatGPT) → C2 概念图生成(ComfyUI/SD/MJ)
-→ C3 批量 Prompt 生成(Kimi) → C4 Godot 资产集成(CC)
-```
-
-详细操作 → Track C 用户手册（C1 风格预研可在 0a 后开始，手册待编写）
-
-### Track D — 音频
-
-```
-D1 音频方向定义(ChatGPT) → D2 音乐生成(Suno/Udio)
-→ D3 音效生成(Suno/专用工具)
-```
-
-详细操作 → Track D 用户手册（需 Phase 0b，手册待编写）
-
-### 迭代开发（新增 / 素材 / Bug / 并入）
-
-```
-新功能 → 路径 A    新素材 → 路径 B    修 Bug → 路径 D    并入 → 路径 C
-```
-
-详细操作 → [迭代手册](manuals/iteration_add_feature.md)
-
----
-
-## 四、Meta — 项目变更协议
-
-当项目级信息发生实质变更时（改了核心玩法、换了美术风格、架构重构等），
-使用以下协议确保所有文件保持一致。
-
-### M1: 项目变更传播
-
-| 项目 | 内容 |
+| 文件 | 作用 |
 |------|------|
-| **目标** | 变更后扫描所有文件，批量更新受影响的内容 |
-| **模型** | Claude Code |
-| **使用时机** | gdd.md 或 tdd.md 的核心章节发生实质修改后 |
-| **Input** | 变更描述 + 变更前后的 diff |
-| **Output** | 受影响文件清单 + 更新 diff |
-| **完成标准** | 所有文件中的旧信息已更新，无矛盾 |
+| `AGENTS.md` | 唯一权威规则入口 |
+| `CLAUDE.md` | Claude / Claude Code 兼容入口 |
+| `docs/project_status.md` | 当前真实状态 |
+| `docs/tasks.md` | 当前任务面板 |
+| `docs/ai_handoff.md` | 交接记录 |
+| `ai/context/web_brief.md` | 给 web 模型的一页简报 |
+| `docs/gdd.md` | 设计意图 |
+| `docs/tdd.md` | 技术设计意图 |
+| `ai/context/architecture.md` | 场景树、目录、通信约定 |
+| `ai/context/coding_conventions.md` | 编码规范 |
 
-**Prompt**：
-```
-## 变更说明
-我刚刚修改了 {{docs/gdd.md 或 docs/tdd.md}}。
+## 三、接手顺序
 
-变更内容：
-{{描述改了什么，或直接粘贴 diff}}
+### 能直接读仓库的 agent
 
-变更原因：
-{{为什么改}}
+1. `AGENTS.md`
+2. `docs/project_status.md`
+3. `docs/tasks.md`
+4. `docs/ai_handoff.md`
+5. 再按需读取设计与实现文档
 
-## 任务
-请扫描以下文件，找出所有引用了旧信息的位置，并提出更新方案：
+### 不能直接读仓库的 web 模型
 
-必查文件：
-- CLAUDE.md
-- docs/gdd.md（如果改的是 tdd.md）
-- docs/tdd.md（如果改的是 gdd.md）
-- ai/context/architecture.md
-- ai/context/coding_conventions.md
-- docs/tasks.md
+1. `ai/context/web_brief.md`
+2. 当前 Sprint 卡片
+3. 当前任务必需的 GDD/TDD 摘录
 
-## 要求
-1. 列出每个受影响的文件和具体位置
-2. 给出更新建议（旧内容 → 新内容）
-3. 标注影响级别：
-   - 🔴 必须立即改（信息矛盾）
-   - 🟡 建议改（描述过时）
-   - 🟢 可选（措辞优化）
-4. 如果变更影响到进行中的任务（tasks.md），特别标注
+## 四、AI 角色矩阵
 
-## 输出格式
-### 影响分析
-| 文件 | 位置 | 旧内容 | 新内容 | 级别 |
-|------|------|--------|--------|------|
+| 角色 | 典型工具 | 适合做什么 |
+|------|----------|------------|
+| 方案与设计 | ChatGPT / Claude web | 方案比较、机制讨论、流程设计、文案 |
+| 仓库实现 | Codex / Claude Code | 读仓库、实现、修复、测试、review、文档同步 |
+| 批量生产 | Kimi 等 | 数据表、模板、清洗、批量文本 |
+| 人类开发者 | Godot 编辑器 + Git | 最终决策、场景搭建、参数和手感调优 |
 
-### 进行中任务影响
-[如果 tasks.md 中有受影响的任务，列出]
+## 五、统一执行闭环
 
-### 建议执行顺序
-1. ...
-2. ...
-```
+每位 AI 默认遵循以下闭环：
 
-### 变更协议执行流程
+1. Intake：读规则、状态、任务、交接
+2. Scope：确认本轮只做什么，不做什么
+3. Execute：按任务卡要求工作
+4. Verify：执行验证，不能虚报
+5. Sync：更新状态、交接和必要文档
+6. Handoff：把下一棒需要的最小上下文留下
 
-```
-1. 修改源文件（gdd.md 或 tdd.md）
-2. 运行 M1 prompt → Claude Code 输出影响分析
-3. Review 影响分析，确认更新方案
-4. 让 Claude Code 批量执行更新
-5. git diff 检查所有改动
-6. git commit
-```
+## 六、任务状态机
 
----
+`docs/tasks.md` 统一使用：
 
-## 五、集成点 & 合流规则
+- `draft`
+- `in_progress`
+- `code_complete`
+- `merged`
 
-四条工作线不是完全独立的，以下是合流点：
+建议语义：
 
-```
-Track C (美术完成) ──→ C4 资产集成 ──→ Track A (代码引用资产)
-Track D (音频完成) ──→ 放入 assets/audio/ ──→ Track A (代码播放音频)
-Track B (UI 方案)  ──→ B3 脚本生成 ──→ Track A (系统连接 UI 信号)
-```
+- 设计和规格清晰但未开始：`draft`
+- 正在做：`in_progress`
+- 代码和本地验证完成、等并入：`code_complete`
+- 已并入主线并完成记录：`merged`
 
-### 合流检查清单
+## 七、文档更新规则
 
-**美术 → 代码**：
-- [ ] 资产放在正确的 assets/ 子目录
-- [ ] 导入设置正确（按 gdd.md 美术风格章节的技术参数）
-- [ ] 代码中使用 `res://assets/...` 引用
-- [ ] 3D 模型/贴图/动画配置正确
+- 稳定规则变化：更新 `AGENTS.md`
+- Claude 兼容说明变化：同步 `CLAUDE.md`
+- 当前真实状态变化：更新 `docs/project_status.md`
+- 当前任务状态变化：更新 `docs/tasks.md`
+- 本轮工作结束：追加 `docs/ai_handoff.md`
+- 设计目标变化：更新 `docs/gdd.md`
+- 技术设计变化：更新 `docs/tdd.md` 与相关 `ai/context/*`
 
-**音频 → 代码**：
-- [ ] 音乐文件为 .ogg，音效为 .wav
-- [ ] 放在 assets/audio/music/ 或 assets/audio/sfx/
-- [ ] AudioStreamPlayer3D 节点配置正确（3D 游戏用 3D 版本）
-- [ ] 通过 EventBus 触发播放（仅广播型事件走 EventBus）
+## 八、工作流入口
 
-**UI → 系统**：
-- [ ] UI 广播型状态变化通过 EventBus 传递给游戏系统
-- [ ] 游戏状态变化通过 EventBus 通知 UI 更新
-- [ ] 稳定单向依赖（如 HUD 读取数据）可直接引用，不必绕 EventBus
-- [ ] UI 不直接引用游戏系统节点（广播型通信）
+- 新项目初始化：`docs/manuals/phase0_project_init.md`
+- 系统 / 代码实现：`docs/manuals/track_a_system_code.md`
+- 迭代开发 / 素材 / 并入：`docs/manuals/iteration_add_feature.md`
 
----
+## 九、关键原则
 
-## 六、日常工作节奏
-
-```
-每天开工：
-  1. 看 docs/tasks.md，确认今天做什么
-  2. 进入对应 Track 开始工作
-
-每个任务完成：
-  3. F5/F6 在 Godot 里验证
-  4. (推荐) 3 个以上系统后，运行 headless smoke test
-
-每次准备提交前：
-  5. 走 A5 全流程 Review
-
-每周末 / 里程碑：
-  6. 更新 docs/changelog.md
-  7. 检查 gdd.md / tdd.md 是否需要更新
-  8. 如果更新了，运行 M1 变更协议
-
-开新功能时：
-  → 走迭代手册路径 A（docs/manuals/iteration_add_feature.md）
-  → 三车道并行：主功能(A) + 素材调参(B) + 紧急修复(D)
-  → 不同 Track 可以并行推进
-```
-
-### Track 间的推荐节奏
-
-```
-Phase 1-2（设计）：Track A + Track C 的 C1（风格预研）同时进行
-                  先确定"做什么"和"长什么样"
-Phase 3（架构）：  Track A 为主，Track B 开始 B1
-Phase 4（开发）：  Track A 为主，Track B/C/D 并行推进
-Phase 5（验证）：  所有 Track 合流，集成测试
-Phase 6（发布）：  打版本
-```
-
----
-
-## 七、避坑清单
-
-1. **AI 给方案，你来选。** 不要让 AI 替你做设计决策。
-2. **三车道并行。** 主功能线一次一个，但素材/调参和紧急修复可以并行。
-3. **不要跳过测试。** 每个任务完成后立刻 F5 跑一遍。3 个以上系统后加 headless smoke test。
-4. **文档要准确。** 文档和代码不一致比没有文档更糟。宁可少写，但要准确。
-5. **核心逻辑用 Claude。** Kimi 只做批量活，核心代码不能省。
-6. **每次对话聚焦一个任务。** 用 CLAUDE.md 和 ai/context/ 提供背景，不要一次塞太多。
-7. **先跑通最小闭环。** 先做一个能玩的原型，再考虑优化和扩展。
-8. **美术风格先定后做。** 不要没定风格就开始生图，否则后期风格不统一。
-9. **改了项目信息就跑 M1。** 不要偷懒手动改一个文件，用变更协议保持一致性。
-10. **Prompt 上下文规则。** 能直接读文件的 agent（Claude Code）禁止在 prompt 中复制项目内容，直接让它读文件；不能读文件的 web 模型只复制最小必要章节。
+1. 不要把设计文档当成已实现事实。
+2. 不要在未验证前声称项目可运行。
+3. 多 AI 协作时，状态文件比长 prompt 更重要。
+4. 任何重大改动都应留下可供下一棒直接使用的交接记录。

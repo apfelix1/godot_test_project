@@ -1,44 +1,35 @@
-# godot_test_project
+# CLAUDE.md
 
-Godot 4.3 独立游戏项目，使用 GDScript。
+本文件是 Claude / Claude Code 的兼容入口。
 
-## 项目结构
-- source/         -- 场景+脚本（feature-oriented，.tscn 和 .gd 共置）
-- source/autoload/ -- 全局单例（game_state.gd, event_bus.gd）
-- source/features/ -- 按功能域组织（player/, enemies/, items/, levels/）
-- source/ui/       -- UI 系统（common/, theme/, main_menu/, hud/）
-- assets/         -- 原始资源（sprites/, audio/, fonts/）
-- ai/context/    -- 架构和编码规范详情（Claude Code 按需读取）
-- docs/           -- GDD, TDD, 任务清单, 工作流, changelog
-- docs/manuals/   -- 各 Track 用户手册
-- addons/         -- Godot 插件
+项目通用规则以 `AGENTS.md` 为准；如果本文件与 `AGENTS.md` 冲突，以 `AGENTS.md` 为准。
 
-## 编码规范
-- GDScript，遵循 Godot 官方风格指南
-- snake_case：文件名、变量、函数
-- PascalCase：类名、节点名
-- 信号命名：past_tense（如 health_changed, item_collected）
-- 通信决策树：广播事件走 EventBus，命令式调用走直接引用，父子走信号/方法（详见 coding_conventions.md）
-- @export 变量用于编辑器可调参数
-- 每个脚本顶部声明 class_name（如需要被其他脚本引用）
+## Claude 接手顺序
 
-## 关键架构
-- autoload/game_state.gd -- 全局游戏状态（存档、场景切换）
-- autoload/event_bus.gd  -- 全局事件总线（跨系统通信）
-- 入口场景：source/main.tscn
+1. 先读 `AGENTS.md`
+2. 再读 `docs/project_status.md`
+3. 再读 `docs/tasks.md`
+4. 再读 `docs/ai_handoff.md`
+5. 最后按需读 `docs/gdd.md`、`docs/tdd.md`、`ai/context/architecture.md`、`ai/context/coding_conventions.md`
 
-## 开发命令
-- 无构建步骤，Godot 编辑器直接运行
-- F5 运行主场景，F6 运行当前场景
+## Claude 适合接手的工作
 
-## 详细文档（按需读取）
-- docs/gdd.md                      -- 游戏设计文档（含美术风格、音频方向）
-- docs/tdd.md                      -- 技术设计文档（含系统模板）
-- docs/tasks.md                    -- 当前任务清单
-- docs/changelog.md                -- 版本日志
-- docs/dev_workflow.md             -- 开发工作流（4 工作线 + 16 个标准 prompt）
-- ai/context/architecture.md       -- 架构详情（场景树、通信规则）
-- ai/context/coding_conventions.md -- 编码规范详情
-- docs/manuals/phase0_project_init.md  -- Phase 0 用户手册：项目初始化（0a 原型 + 0b 生产）
-- docs/manuals/track_a_system_code.md  -- Track A 用户手册：系统/代码
-- docs/manuals/iteration_add_feature.md -- 迭代手册：新增功能/素材/并入
+- 架构收束
+- 核心代码实现
+- 代码 review
+- 文档一致性检查
+- 文档同步和交接整理
+
+## Claude 工作注意事项
+
+- 不要在未验证前声称项目可运行。
+- 不要把 GDD/TDD 中的设想当作已提交代码事实。
+- 结束工作前应更新 `docs/ai_handoff.md`，并在状态变化时更新 `docs/tasks.md`。
+
+## 相关文件
+
+- 仓库总规则：`AGENTS.md`
+- 当前状态：`docs/project_status.md`
+- 当前任务：`docs/tasks.md`
+- 交接记录：`docs/ai_handoff.md`
+- web 模型简报：`ai/context/web_brief.md`
